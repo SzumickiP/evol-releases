@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EVOL – Ewolucja życia</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud">
+  <div class="title">EVOL <span id="hud-era">Era 1 · Pierwotny ocean</span></div>
+  <div id="hud-profile" class="hud-profile"></div>
+  <div class="bar"><label>Energia</label><div class="track"><div id="b-energy" class="fill energy"></div></div><span id="v-energy">0</span></div>
+  <div class="bar"><label>Zdrowie</label><div class="track"><div id="b-health" class="fill health"></div></div><span id="v-health">0</span></div>
+  <div class="bar"><label>Biomasa</label><div class="track"><div id="b-biomass" class="fill biomass"></div></div><span id="v-biomass">0</span></div>
+  <dl class="stats">
+    <dt>Pokolenie</dt><dd id="s-gen">1</dd>
+    <dt>Twój ród</dt><dd id="s-pop">1</dd>
+    <dt id="l-wild">Inne komórki</dt><dd id="s-wild">0</dd>
+    <dt>Strefa</dt><dd id="s-zone">–</dd>
+    <dt>Głębokość</dt><dd id="s-depth">–</dd>
+    <dt>Temperatura</dt><dd id="s-temp">–</dd>
+    <dt>UV</dt><dd id="s-uv">–</dd>
+    <dt>Tlen</dt><dd id="s-o2">–</dd>
+    <dt>Światło</dt><dd id="s-light">–</dd>
+    <dt class="cr">Wilgotność</dt><dd id="s-water" class="cr">–</dd>
+    <dt class="cr">Oddech</dt><dd id="s-breath" class="cr">–</dd>
+  </dl>
+  <div id="s-traits" class="traits"></div>
+</div>
+
+<div id="quest" class="hidden">
+  <div id="q-kicker" class="q-kicker">Era 1 · cel</div>
+  <div id="q-title" class="q-title">Narodziny Rodu</div>
+  <div id="q-desc" class="q-desc"></div>
+  <div id="q-progress" class="q-progress"><div class="track"><div id="q-fill" class="fill quest-fill"></div></div><span id="q-count">0 / 10</span></div>
+  <ol id="q-list" class="q-list"></ol>
+</div>
+
+<div id="divide-hint">SPACJA – podział komórki</div>
+<div id="apop-hint">E – apoptoza komórki-oszustki</div>
+<div id="toasts"></div>
+<canvas id="minimap" width="240" height="156"></canvas>
+<div id="help">WASD / strzałki / przytrzymaj mysz – ruch · kółko – zoom · spacja – podział · E – apoptoza (Era 6)</div>
+
+<div id="title" class="overlay hidden">
+  <div class="panel wide title-panel">
+    <div class="title-head">
+      <h1>EVOL</h1>
+      <p class="lead">Od pierwszej komórki do wyjścia z wody – ok. 3,6 mld lat ewolucji.</p>
+    </div>
+    <section class="t-sec">
+      <div class="kicker">Gracz</div>
+      <div id="t-players" class="login-list"></div>
+      <div class="t-new">
+        <input id="login-name" maxlength="20" autocomplete="off" spellcheck="false" placeholder="Nowy gracz – wpisz nazwę">
+        <button id="login-go">Dodaj</button>
+      </div>
+      <div id="login-err" class="login-err"></div>
+      <div id="t-who" class="t-who"></div>
+    </section>
+    <section class="t-sec">
+      <div class="kicker">Drzewo ewolucji <span class="t-hint">· kliknij etap, aby zacząć grę od niego z tą gałęzią ewolucji</span></div>
+      <div id="t-tree" class="tree"></div>
+    </section>
+    <div class="t-btns">
+      <button id="t-new">Nowa gra</button>
+      <button id="t-how" class="ghost">Jak grać</button>
+      <button id="t-ach" class="ghost">Kronika rodu</button>
+    </div>
+    <p class="note">Gracze i ich drzewa zapisują się w tej przeglądarce na tym komputerze. · Wersja <span id="ver">v1.0.1</span></p>
+  </div>
+</div>
+
+<div id="achievements" class="overlay hidden">
+  <div class="panel wide">
+    <div class="kicker">Kronika rodu</div>
+    <h1 class="evo-title">Osiągnięcia</h1>
+    <p id="ach-summary" class="lead"></p>
+    <div id="ach-grid" class="ach-grid"></div>
+    <button id="ach-back">Wróć</button>
+  </div>
+</div>
+
+<div id="intro" class="overlay hidden">
+  <div class="panel">
+    <h1>EVOL</h1>
+    <p class="lead">4 miliardy lat temu. Ocean bez tlenu, niebo bez ozonu.<br>
+    Przy kominach hydrotermalnych z chemicznego bulionu powstaje pierwsza komórka.</p>
+    <div class="legend">
+      <div><i class="dot organic"></i><b>Związki organiczne</b> – energia i trochę biomasy. Najwięcej przy powierzchni.</div>
+      <div><i class="dot mineral"></i><b>Minerały z kominów</b> – dużo energii. Unoszą się z kominów.</div>
+      <div><i class="dot lipid"></i><b>Lipidy</b> – budulec błony: dużo biomasy, leczą.</div>
+      <div><i class="dot uv"></i><b>Strefa UV</b> – przy powierzchni promieniowanie niszczy RNA.</div>
+      <div><i class="dot heat"></i><b>Czarne kominy</b> – dymią siarczkami, przy wylocie ponad 100°C.</div>
+      <div><i class="dot alk"></i><b>Kominy alkaliczne</b> – jasne wieże węglanowe, łagodnie ciepłe. Kolebka życia.</div>
+    </div>
+    <p>Zbierz <b>100 biomasy</b> i podziel się. Potomkowie żyją samodzielnie – gdy zginiesz, przejmujesz jednego z nich.
+    Przeprowadź ród od protokomórki z RNA, przez bakterie i archeony, Wielkie Utlenienie, komórkę z jądrem
+    i pierwszy organizm wielokomórkowy, aż do <b>wyjścia z wody</b> – jako stawonóg, czworonóg albo roślina lądowa.
+    Niektóre drogi to ślepe gałęzie, które zostają w morzu.</p>
+    <button id="start">Rozpocznij nową grę</button>
+    <button id="intro-back" class="ghost">Wróć</button>
+  </div>
+</div>
+
+<div id="evolve" class="overlay hidden">
+  <div class="panel wide">
+    <div id="timeline" class="timeline"></div>
+    <div id="evo-kicker" class="kicker">Pierwszy skok ewolucyjny</div>
+    <h1 id="evo-title" class="evo-title">Rozdroże Ewolucji</h1>
+    <p id="evo-lead" class="lead"></p>
+    <div id="cards" class="cards"></div>
+    <button id="evo-go" class="hidden">Dalej</button>
+  </div>
+</div>
+
+<div id="victory" class="overlay hidden">
+  <div class="panel">
+    <div id="vic-kicker" class="kicker"></div>
+    <h1 id="vic-title" class="evo-title">Pierwszy organizm</h1>
+    <p id="vic-text" class="lead"></p>
+    <p id="vic-stats"></p>
+    <div id="vic-ach"></div>
+    <button id="vic-continue">Graj dalej</button>
+    <button id="vic-menu" class="ghost">Menu</button>
+  </div>
+</div>
+
+<div id="gameover" class="overlay hidden">
+  <div class="panel">
+    <h1>Linia wymarła</h1>
+    <p id="go-stats"></p>
+    <div id="go-ach"></div>
+    <button id="restart">Spróbuj ponownie</button>
+    <button id="go-menu" class="ghost">Menu</button>
+  </div>
+</div>
+
+<script src="js/noise.js"></script>
+<script src="js/terrain.js"></script>
+<script src="js/sky.js"></script>
+<script src="js/world.js"></script>
+<script src="js/cell.js"></script>
+<script src="js/evolution.js"></script>
+<script src="js/eras.js"></script>
+<script src="js/colony.js"></script>
+<script src="js/creature.js"></script>
+<script src="js/life.js"></script>
+<script src="js/profile.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
