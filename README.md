@@ -3,6 +3,10 @@
 Gra przeglądarkowa o ewolucji: poprowadź ród od pierwszej komórki w pierwotnym oceanie, przez bakterie, Wielkie Utlenienie,
 komórkę z jądrem i pierwszy organizm wielokomórkowy, aż do **wyjścia z wody** – jako stawonóg, czworonóg albo roślina lądowa.
 
+## Graj online
+
+**https://szumickip.github.io/evol-releases/** – gra działa od razu w przeglądarce.
+
 ## Pobierz
 
 Najnowsza wersja: **[Releases](https://github.com/SzumickiP/evol-releases/releases/latest)**
@@ -18,4 +22,4 @@ WASD / strzałki / przytrzymanie myszy – ruch · kółko – przybliżenie · 
 
 ---
 
-To repozytorium zawiera tylko wydania – budowane automatycznie przez GitHub Actions z prywatnego kodu źródłowego.
+To repozytorium zawiera tylko wydania i wersję online (gałąź `gh-pages`) – budowane automatycznie przez GitHub Actions z prywatnego kodu źródłowego.
